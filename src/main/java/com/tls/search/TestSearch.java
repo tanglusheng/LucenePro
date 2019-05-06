@@ -42,9 +42,9 @@ public class TestSearch {
 	@Test
 	public void searchByTermRange() {
 		//查询name以a开头和s结尾的
-//		su.searchByTermRange("name","a","s",10);
+		su.searchByTermRange("name","la","s",10);
 		//由于attachs是数字类型，使用TermRange无法查询
-		su.searchByTermRange("attach","2","10", 5);
+//		su.searchByTermRange("attach","2","10", 5);
 	}
 	
 	@Test

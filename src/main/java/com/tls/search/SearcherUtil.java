@@ -34,6 +34,7 @@ import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
+import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
 public class SearcherUtil {
@@ -55,14 +56,14 @@ public class SearcherUtil {
 	private Map<String,Float> scores = new HashMap<String,Float>();
 	
 	public SearcherUtil() {
-//		directory = new RAMDirectory();
+		directory = new RAMDirectory();
 		try {
-			directory = FSDirectory.open(new File("d:/lucenc/index03"));
+//			directory = FSDirectory.open(new File("d:/lucenc/index03"));
 			setDates();
 			scores.put("itat.org",2.0f);
 			scores.put("zttc.edu", 1.5f);
 			index();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
