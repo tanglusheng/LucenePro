@@ -1,4 +1,4 @@
-package com.tls.test;
+package com.tls.search;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -17,10 +17,6 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.StaleReaderException;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.store.RAMDirectory;
@@ -43,42 +39,16 @@ public class IndexUtil {
 	private String[] names = {"zhangsan","lisi","john","jetty","mike","jake"};
 	private Directory directory = null;
 	private Map<String,Float> scores = new HashMap<String,Float>();
-	private static IndexReader reader = null;
 	
 	public IndexUtil() {
-		try {
-			setDates();
-			scores.put("itat.org",2.0f);
-			scores.put("zttc.edu", 1.5f);
-			//directory = FSDirectory.open(new File("d:/lucene/index02"));
-			directory = new RAMDirectory();
-			index();
-			reader = IndexReader.open(directory,false);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		setDates();
+		scores.put("itat.org",2.0f);
+		scores.put("zttc.edu", 1.5f);
+		directory = new RAMDirectory();
+		index();
 	}
 	
-	public IndexSearcher getSearcher() {
-		try {
-			if(reader==null) {
-				reader = IndexReader.open(directory,false);
-			} else {
-				IndexReader tr = IndexReader.openIfChanged(reader);
-				if(tr!=null) {
-					reader.close();
-					reader = tr;
-				}
-			}
-			return new IndexSearcher(reader);
-		} catch (CorruptIndexException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-		
-	}
+	
 	
 	private void setDates() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -190,17 +160,6 @@ public class IndexUtil {
 		}
 	}
 	
-	public void delete02() {
-		try {
-			reader.deleteDocuments(new Term("id","1"));
-		} catch (CorruptIndexException e) {
-			e.printStackTrace();
-		} catch (LockObtainFailedException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 	
 	public void update() {
 		IndexWriter writer = null;
@@ -259,7 +218,6 @@ public class IndexUtil {
 				doc = new Document();
 				doc.add(new Field("id",ids[i],Field.Store.YES,Field.Index.NOT_ANALYZED_NO_NORMS));
 				doc.add(new Field("email",emails[i],Field.Store.YES,Field.Index.NOT_ANALYZED));
-				doc.add(new Field("email","test"+i+"@test.com",Field.Store.YES,Field.Index.NOT_ANALYZED));
 				doc.add(new Field("content",contents[i],Field.Store.NO,Field.Index.ANALYZED));
 				doc.add(new Field("name",names[i],Field.Store.YES,Field.Index.NOT_ANALYZED_NO_NORMS));
 				//´æ´¢Êý×Ö
@@ -291,44 +249,4 @@ public class IndexUtil {
 			}
 		}
 	}
-	
-	public void search01() {
-		try {
-			IndexReader reader = IndexReader.open(directory);
-			IndexSearcher searcher = new IndexSearcher(reader);
-			TermQuery query = new TermQuery(new Term("email","test0@test.com"));
-			TopDocs tds = searcher.search(query, 10);
-			for(ScoreDoc sd:tds.scoreDocs) {
-				Document doc = searcher.doc(sd.doc);
-				System.out.println("("+sd.doc+"-"+doc.getBoost()+"-"+sd.score+")"+
-						doc.get("name")+"["+doc.get("email")+"]-->"+doc.get("id")+","+
-						doc.get("attach")+","+doc.get("date")+","+doc.getValues("email")[1]);
-			}
-			reader.close();
-		} catch (CorruptIndexException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public void search02() {
-		try {
-			IndexSearcher searcher = getSearcher();
-			TermQuery query = new TermQuery(new Term("content","like"));
-			TopDocs tds = searcher.search(query, 10);
-			for(ScoreDoc sd:tds.scoreDocs) {
-				Document doc = searcher.doc(sd.doc);
-				System.out.println(doc.get("id")+"---->"+
-						doc.get("name")+"["+doc.get("email")+"]-->"+doc.get("id")+","+
-						doc.get("attach")+","+doc.get("date")+","+doc.getValues("email")[1]);
-			}
-			searcher.close();
-		} catch (CorruptIndexException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 }

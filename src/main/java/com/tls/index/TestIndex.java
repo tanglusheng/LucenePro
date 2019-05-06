@@ -1,4 +1,4 @@
-package com.tls.test;
+package com.tls.index;
 
 import org.junit.Test;
 
@@ -9,23 +9,21 @@ public class TestIndex {
 		IndexUtil iu = new IndexUtil();
 		iu.index();
 	}
-	
-	@Test
-	public void testQuery() {
-		IndexUtil iu = new IndexUtil();
-		iu.query();
-	}
-	
 	@Test
 	public void testDelete() {
 		IndexUtil iu = new IndexUtil();
 		iu.delete();
 	}
-	
 	@Test
-	public void testDelete02() {
+	public void testDelete2() {
 		IndexUtil iu = new IndexUtil();
 		iu.delete02();
+	}
+	
+	@Test
+	public void testQuery() {
+		IndexUtil iu = new IndexUtil();
+		iu.query();
 	}
 	
 	@Test
@@ -39,7 +37,6 @@ public class TestIndex {
 		IndexUtil iu = new IndexUtil();
 		iu.forceDelete();
 	}
-	
 	@Test
 	public void testMerge() {
 		IndexUtil iu = new IndexUtil();
@@ -50,6 +47,11 @@ public class TestIndex {
 	public void testUpdate() {
 		IndexUtil iu = new IndexUtil();
 		iu.update();
+	}
+	@Test
+	public void queryEmail() {
+		IndexUtil iu = new IndexUtil();
+		iu.queryEmail();
 	}
 	
 	@Test
@@ -72,3 +74,4 @@ public class TestIndex {
 		}
 	}
 }
+
