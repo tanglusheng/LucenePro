@@ -133,10 +133,10 @@ public class TestSearch {
 	
 	@Test
 	public void testSearchPage01() {
-		su.searchPage("java", 2,20);
+		su.searchPage("Java", 1,20);
 		System.out.println("-------------------------------");
 //		su.searchNoPage("java");
-		su.searchPageByAfter("java", 2,20);
+//		su.searchPageByAfter("java", 2,20);
 	}
 	
 	@Test

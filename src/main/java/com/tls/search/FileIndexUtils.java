@@ -1,20 +1,27 @@
 package com.tls.search;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 
+import org.apache.lucene.analysis.WordlistLoader;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.NumericField;
 import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.IndexReader.FieldOption;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.LockObtainFailedException;
 import org.apache.lucene.util.Version;
+import org.apache.poi.hwpf.extractor.WordExtractor;
+import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 public class FileIndexUtils {
 	private static Directory directory = null;
@@ -41,6 +48,11 @@ public class FileIndexUtils {
 			Document doc = null;
 			for(File f:file.listFiles()) {
 				doc = new Document();
+				InputStream in = new FileInputStream(f);
+//				XWPFDocument docx = new XWPFDocument(in);
+//				XWPFWordExtractor we = new XWPFWordExtractor(docx);
+//				doc.add(new Field("content", we.getText(), Field.Store.NO, Field.Index.ANALYZED));
+				
 				doc.add(new Field("content",new FileReader(f)));
 				doc.add(new Field("filename",f.getName(),Field.Store.YES,Field.Index.NOT_ANALYZED));
 				doc.add(new Field("path",f.getAbsolutePath(),Field.Store.YES,Field.Index.NOT_ANALYZED));

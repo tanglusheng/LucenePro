@@ -17,6 +17,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 import org.junit.Test;
 
@@ -25,14 +26,17 @@ public class HelloLucene {
 	 * 创建索引
 	 */
 	@Test
-	public void index() throws Exception {
+	public void ramIndexTest() throws Exception {
 		// 创建Directory,内存索引
-		// Directory directory=new RAMDirectory();
-		Directory directory = FSDirectory.open(new File("D:/github/LucenePro/src/main/resources/data/index01"));
+		Directory directory=new RAMDirectory();
+		// 创建磁盘索引
+//		Directory directory = FSDirectory.open(new File("D:/github/LucenePro/src/main/resources/data/index01"));
 		// 创建IndexWriter
 		IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_35, new StandardAnalyzer(Version.LUCENE_35));
 		IndexWriter writer = null;
 		writer = new IndexWriter(directory, iwc);
+		writer.deleteAll();
+		writer.commit();
 		// 创建Document
 		Document doc = null;
 		// 为Document添加Field
@@ -45,9 +49,59 @@ public class HelloLucene {
 			// 把文档添加到索引中
 			writer.addDocument(doc);
 		}
-		writer.close();
+		writer.close();//必须关闭，可以放到finally中
+		search(directory);
 	}
 
+	public void search(Directory directory) throws Exception{
+		// 创建IndexReader
+		IndexReader reader = IndexReader.open(directory);
+		// 根据IndexReader创建IndexSearcher
+		IndexSearcher searcher = new IndexSearcher(reader);
+		// 创建搜索的Query
+		QueryParser parser = new QueryParser(Version.LUCENE_35, "content", new StandardAnalyzer(Version.LUCENE_35));
+		Query query = parser.parse("Character");
+		// 根据searcher搜索并返回TopDocs
+		TopDocs tds = searcher.search(query, 10);
+		// 根据TopDocs获取ScoreDoc对象
+		ScoreDoc[] sds = tds.scoreDocs;
+		for (ScoreDoc sd : sds) {
+			// 根据searcher和ScoreDoc对象获取具体的Document对象
+			Document d = searcher.doc(sd.doc);
+			// 根据Document对象获取需要的值
+			System.out.println(d.get("filename") + "----" + d.get("path"));
+		}
+		// 关闭reader
+		searcher.close();
+		reader.close();
+	}
+
+	@Test
+	public void fsIndexTest() throws Exception {
+		// 创建磁盘索引
+		Directory directory = FSDirectory.open(new File("D:/github/LucenePro/src/main/resources/data/index01"));
+		// 创建IndexWriter
+		IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_35, new StandardAnalyzer(Version.LUCENE_35));
+		IndexWriter writer = null;
+		writer = new IndexWriter(directory, iwc);
+		writer.deleteAll();//删除之前所建立的索引,真实不这样操作,创建索引耗费资源
+		writer.commit();
+		// 创建Document
+		Document doc = null;
+		// 为Document添加Field
+		File f = new File("D:/github/LucenePro/src/main/resources/data/example");
+		for (File file : f.listFiles()) {
+			doc = new Document();
+			doc.add(new Field("content", new FileReader(file)));
+			doc.add(new Field("filename", file.getName(), Store.YES, Field.Index.NOT_ANALYZED));
+			doc.add(new Field("path", file.getAbsolutePath(), Store.YES, Field.Index.NOT_ANALYZED));
+			// 把文档添加到索引中
+			writer.addDocument(doc);
+		}
+		writer.close();//必须关闭，可以放到finally中
+		search();
+	}
+	
 	/**
 	 * 搜索
 	 * 
